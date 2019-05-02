@@ -33,7 +33,7 @@ class JenkinsPipelineModel {
 			containers: [
 				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:alpine',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
 				steps.containerTemplate(name: 'docker', image: 'docker:stable-dind', privileged: true, alwaysPullImage: true),
-				steps.containerTemplate(name: 'maven', image: 'evermind/jenkins-maven:3-jdk-8-alpine', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
+				steps.containerTemplate(name: 'maven', image: 'evermind/jenkins-maven:3-jdk-8-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
 			]) {	
 			steps.node(buildSlaveLabel) {
 				GitInfo gitInfo=new GitInfo()
