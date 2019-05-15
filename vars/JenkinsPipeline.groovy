@@ -7,10 +7,11 @@ def call(body) {
 	body()
 
 	model.execute([
-		"env":env,
-		"steps":steps,
-		"currentBuild":currentBuild,
-		"scm":scm,
-		"docker":docker
+		env: env,
+		steps: steps,
+		currentBuild: currentBuild,
+		scm: scm,
+		docker: docker,
+		stopBuildPipeline: false
 		])
 }

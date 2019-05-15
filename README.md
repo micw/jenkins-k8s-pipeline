@@ -2,11 +2,11 @@
 
 This is an implementation of a Jenkins build pipeline which uses the Jenkins Kubernetes Plug-In to create dynamic build slaves.
 
+
 ## Features
 
-* Easy to use
-
 * To be used with multibranch-pipeline jobs
+* Easy to use
 
 * maven build
    * Deploy maven artifacts
@@ -20,6 +20,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 * docker build
    * determine docker tag from git branch/tag
    * Configure which docker setting to use
+
 
 
 # Usage
@@ -109,6 +110,12 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 * If you use a private docker registry that requires authentification, go to "Credentials" and add one of type "username/password"
 * Use a speaking ID, e.g. my-docker-credentials which can later be referenced in the pipeline
 
+### Git Settings
+
+* To be able to commit tags during maven releases, you need to setup email and name for git
+* Go to "Manage Jenkins" -> "Configure System" -> Subsection "Git plugin"
+* Set "Global Config user.name Value" and "Global Config user.email Value"
+
 
 ## Project's Jenkinsfile
 
@@ -172,3 +179,13 @@ JenkinsPipeline {
         * This can be set to a higher value if you have configured git commit hooks that triggers jenkins
 * Enable "Discard old items"
     * Optionally set "Days to keep old items" if you want to have old branches/tag jobs in "disabled" state for this amount of time before the jobs gets deleted
+
+
+# Issues / workarounds
+
+Workarounds are implemented for:
+* https://issues.jenkins-ci.org/browse/JENKINS-40337
+* https://issues.jenkins-ci.org/browse/JENKINS-43563
+* https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class
+* SSH credentials used for git checkout are passed to maven using "ssh-agent". Works only git using SSH key authentification
+
