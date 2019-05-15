@@ -1,6 +1,6 @@
 # About
 
-This is an implementation of a Jenkins build pipeline which uses the Jenkins Kubernetes Plug-In to create dynamic build slaves  .
+This is an implementation of a Jenkins build pipeline which uses the Jenkins Kubernetes Plug-In to create dynamic build slaves.
 
 ## Features
 
@@ -100,13 +100,13 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 
 ### Docker settings
 
-* Add credentials for your docker registry with type "username/password"
+* If you use a private docker registry that requires authentification, go to "Credentials" and add one of type "username/password"
 * Use a speaking ID, e.g. my-docker-credentials which can later be referenced in the pipeline
 
 
 ## Project's Jenkinsfile
 
-Create file Jenkinsfile.groovy which uses the pipeline. It has the following syntax:
+To use the pipeline in a maven (or other) project, create a file Jenkinsfile.groovy in the root of your project's git repository. It has the following syntax:
 
 ```
 @Library("JenkinsPipeline@feature/v001") _
@@ -135,7 +135,7 @@ JenkinsPipeline {
         * if set, all steps will be run with this docker registry configured (e.g. maven tasks that pull docker images will use it)
 * If a maven section is present, a maven build will be done
     * if deploy is set to false (default) "mvn verify" is executed. If set to true, "mvn deploy" is executed
-    * if skipTests is set to false, maven tests are skipped
+    * if skipTests is set to true, maven tests are skipped
     * The maven section adds MAVEN_GROUP, MAVEN_ARTIFACT and MAVEN_VERSION to the "vars" which can be referenced by other sections
 * If a docker section is present, a docker build+push will be performed
     * imageName must be set
