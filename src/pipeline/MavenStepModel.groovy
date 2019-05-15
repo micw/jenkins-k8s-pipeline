@@ -49,6 +49,7 @@ class MavenStepModel extends AbstractStepModel {
 
 				def mavenCommand="""
 					export _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true
+					export DOCKER_HOST=127.0.0.1
 					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${goal}
 				"""
 
@@ -62,6 +63,7 @@ class MavenStepModel extends AbstractStepModel {
 
 				def mavenCommand="""
 					export _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true
+					export DOCKER_HOST=127.0.0.1
 					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${goal}
 				"""
 
@@ -106,7 +108,6 @@ class MavenStepModel extends AbstractStepModel {
 			def innerBody=body
 			mavenCommand = """
 				rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker
-				export DOCKER_HOST=127.0.0.1
 				${mavenCommand}
 			"""
 			body={
