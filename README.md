@@ -6,10 +6,16 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 
 * Easy to use
 
+* To be used with multibranch-pipeline jobs
+
 * maven build
    * Deploy maven artifacts
    * Automatically add branchname to maven snapshot version
-   * Configure which maven setting to use
+   * Configure which maven settings.xml to use (provided by jenkins)
+   * perform maven releases "the pipeline way"
+       * On demand, a job tags a release and increases the maven version number
+       * Jenkins picks up the tag and builds the release it using the same pipeline that is used for non-release builds
+       * The maven release plug-in is only be used for tagging and versioning, so all pipeline steps required for release are performed (not only the maven part)
 
 * docker build
    * determine docker tag from git branch/tag
@@ -31,7 +37,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 
 ### Kubernetes settings
 
-* When installing Jenkins from HELM chart, Kubernetes slaves are already set up by default
+* When installing Jenkins from HELM chart (https://github.com/helm/charts/tree/master/stable/jenkins), Kubernetes slaves are already set up by default
 * Otherwise go to "Manage Jenkins" -> "Configure System" -> Subsection "Cloud" and Add a cloud of type "kubernetes"
 * The pipeline expects the cloud to be named "kubernetes". This will be configurable in a later version.
 
@@ -119,6 +125,7 @@ JenkinsPipeline {
     maven {
         deploy(true)
         skipTests(false)
+        enableReleases("master","other-branch")
     }
     docker {
         imageName("${vars.MAVEN_ARTIFACT}")
@@ -137,6 +144,31 @@ JenkinsPipeline {
     * if deploy is set to false (default) "mvn verify" is executed. If set to true, "mvn deploy" is executed
     * if skipTests is set to true, maven tests are skipped
     * The maven section adds MAVEN_GROUP, MAVEN_ARTIFACT and MAVEN_VERSION to the "vars" which can be referenced by other sections
+    * With enableReleases it is possible to enable maven releases on specific branches
+        * enableReleases() without branches enables it for "master"
+        * When a build is performed on this branch, parameters are added to the job to perform a maven release and to set the next version
+        * When the "release" parameter is enabled, the job will use maven to build/verify the artifact, tag a release and set the new version
+        * The tag will be release-1.2.3 (where 1.2.3 is the maven release version)
+        * The release itself will be build by a new jenkins job created from the new tag
 * If a docker section is present, a docker build+push will be performed
     * imageName must be set
     * tag may be set. If not set, the current git branch or tag will be used.
+
+## Set up the multibranch pipeline job on jenkins
+
+* Create a new job of type "multibranch pipeline"
+* Add your project's git repository as source
+    * Enable "discover branches" 
+    * To build releases, enable "dicover tags" as well
+    * If you have the "basic-branch-build-strategies" installed, enable the following build strategies:
+        * "Regular branches"
+        * If you have "discover branches" enabled above, also enable "Tag"
+        * Optionally set "Ignore tags older than" to a reasonable number of days (e.g. 60) to have old release jobs be removed from jenkins
+    * You can also filter your branches/tags
+* On Build Configuration enable "Jenkinsfile" and set Script Path to "Jenkinsfile.groovy"
+* Enable Scan Multibranch Pipeline Triggers
+    * Enable "Build whenever a SNAPSHOT dependency is built"
+    * Enable "Periodically if not otherwise run", set it to 1 minute or 5 minutes. This will poll git for changes
+        * This can be set to a higher value if you have configured git commit hooks that triggers jenkins
+* Enable "Discard old items"
+    * Optionally set "Days to keep old items" if you want to have old branches/tag jobs in "disabled" state for this amount of time before the jobs gets deleted
