@@ -25,6 +25,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
   * jenkins/jnlp-slave:alpine (until 3.27-2-alpine or higher is released which contains https://github.com/jenkinsci/docker-jnlp-slave/pull/80)
   * docker:stable-dind
   * evermind/jenkins-maven:3-jdk-8-slim (Maven 3.x, OpenJDK 8.x)
+      * This is basically the official image but running with the same user id as jenkins slave does which is important to avoid lots of unexpected behaviour (e.g. non-working ssh client due to file owner mismatch)
 
 # Usage
 
