@@ -21,7 +21,10 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
    * determine docker tag from git branch/tag
    * Configure which docker setting to use
 
-
+* Build environment (currently fixed, will be extended and make customizable in later versions)
+  * jenkins/jnlp-slave:alpine (until 3.27-2-alpine or higher is released which contains https://github.com/jenkinsci/docker-jnlp-slave/pull/80)
+  * docker:stable-dind
+  * evermind/jenkins-maven:3-jdk-8-slim (Maven 3.x, OpenJDK 8.x)
 
 # Usage
 
