@@ -138,6 +138,7 @@ JenkinsPipeline {
         deploy(true)
         skipTests(false)
         enableReleases("master","other-branch")
+        options("-Dmyprop=${vars.GIT_BRANCH_OR_TAG_NAME}")
         after {}
     }
     docker {
@@ -151,6 +152,8 @@ JenkinsPipeline {
 
 * The first line imports this pipeline script library. The part after the @ references a tag or branch. For build stability, you should use a release-tag in your projects
 * The JenkinsPipeline block calls the pipeline script
+* SCM checkout is always done implicitly
+    * This step adds GIT_BRANCH_OR_TAG_NAME to the "vars" which can be referenced by other sections
 * The config section configures some basics:
     * mavenSettings() references the ID of the Maven settings.xml described above
     * dockerRegistry() tells docker to use this registry URL (optionally with a credentials ID)
@@ -165,6 +168,7 @@ JenkinsPipeline {
         * When the "release" parameter is enabled, the job will use maven to build/verify the artifact, tag a release and set the new version
         * The tag will be release-1.2.3 (where 1.2.3 is the maven release version)
         * The release itself will be build by a new jenkins job created from the new tag
+    * with options(), additional command line options can be passed to maven
 * If a docker section is present, a docker build+push will be performed
     * imageName must be set
     * tag may be set. If not set, the current git branch or tag will be used.

@@ -5,6 +5,7 @@ class MavenStepModel extends AbstractStepModel {
 
 	boolean deploy=false
 	boolean skipTests=false
+	String extraOpts=""
 	List mavenReleaseBranches=[]
 
 	void deploy(boolean deploy=true) {
@@ -13,6 +14,10 @@ class MavenStepModel extends AbstractStepModel {
 
 	void skipTests(boolean skipTests=true) {
 		this.skipTests=skipTests
+	}
+
+	void options(String extraOpts="") {
+		this.extraOpts=extraOpts
 	}
 
 	void enableReleases(String... mavenReleaseBranches) {
@@ -51,7 +56,7 @@ class MavenStepModel extends AbstractStepModel {
 					export _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true
 					export DOCKER_HOST=127.0.0.1
 					[ -z "${DOCKER_CONFIG} ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
-					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${goal}
+					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
 				"""
 
 				globals.currentBuild.description="Prepare release of ${releaseVersion}"
@@ -66,7 +71,7 @@ class MavenStepModel extends AbstractStepModel {
 					export _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true
 					export DOCKER_HOST=127.0.0.1
 					[ -z "\${DOCKER_CONFIG}" ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
-					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${goal}
+					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
 				"""
 
 				def mavenVersion

@@ -63,6 +63,8 @@ class JenkinsPipelineModel {
 					steps.echo "git info: ${gitInfo}"
 				}
 				globals['gitInfo']=gitInfo
+				vars['GIT_BRANCH_OR_TAG_NAME']=gitInfo.name
+
 
 				for (step in pipelineSteps) {
 					step.execute(config,globals)
