@@ -2,15 +2,27 @@ package pipeline
 
 abstract class AbstractStepModel {
 
-	def bodyClosure
+	Closure bodyClosure
 	Map vars
 
-	AbstractStepModel(bodyClosure,vars) {
+	Closure beforeClosure
+	Closure afterClosure
+
+	AbstractStepModel(Closure bodyClosure,Map vars) {
 		this.bodyClosure=bodyClosure
 		this.vars=vars
 		bodyClosure.delegate=this
 		bodyClosure.resolveStrategy = Closure.DELEGATE_ONLY
 	}
+
+	void before(Closure beforeClosure) {
+		this.beforeClosure=beforeClosure
+	}
+	void after(Closure afterClosure) {
+		this.afterClosure=afterClosure
+	}
+
+
 	String vars(String name) {
 		if (vars[name]) {
 			return vars[name]
@@ -24,5 +36,20 @@ abstract class AbstractStepModel {
 	}
 
 	abstract void doExecute(config,Map globals)
+
+	void runBeforeScripts(config,Map globals) {
+		if (beforeClosure) {
+			beforeClosure.delegate=globals.jenkins
+			beforeClosure.resolveStrategy=Closure.DELEGATE_ONLY
+			beforeClosure()
+		}
+	}
+	void runAfterScripts(config,Map globals) {
+		if (afterClosure) {
+			afterClosure.delegate=globals.jenkins
+			afterClosure.resolveStrategy=Closure.DELEGATE_ONLY
+			afterClosure()
+		}
+	}
 
 }

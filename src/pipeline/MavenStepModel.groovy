@@ -79,7 +79,9 @@ class MavenStepModel extends AbstractStepModel {
 				}
 				globals.currentBuild.description=mavenVersion
 
+				runBeforeScripts(config,globals)
 				steps.sh(mavenCommand)
+				runAfterScripts(config,globals)
 			}
 		}
 

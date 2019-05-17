@@ -12,11 +12,11 @@ class JenkinsPipelineModel {
 		body()
 	}
 
-	def maven(body) {
+	def maven(Closure body) {
 		pipelineSteps.add(new MavenStepModel(body,vars))
 	}
 
-	def docker(body) {
+	def docker(Closure body) {
 		pipelineSteps.add(new DockerStepModel(body,vars))
 	}
 
