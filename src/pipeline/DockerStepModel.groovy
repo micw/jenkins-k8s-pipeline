@@ -35,9 +35,9 @@ class DockerStepModel extends AbstractStepModel {
 
 		def body={
 			steps.echo("Building docker image '${imageName}'")
-			def image = globals.docker.build("${imageName}")
+			steps.sh("docker build . -t ${imageName}:${tag}")
 			steps.echo("Pushing docker image '${imageName}' with tag '${tag}'")
-			image.push(tag)
+			steps.sh("docker push ${imageName}:${tag}")
 		}
 
 		// if docker registry is configured, wrap this in "docker.withRegistry"

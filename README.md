@@ -191,5 +191,6 @@ Workarounds are implemented for:
 * https://issues.jenkins-ci.org/browse/JENKINS-40337
 * https://issues.jenkins-ci.org/browse/JENKINS-43563
 * https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class
+* https://stackoverflow.com/questions/51678535/how-to-resolve-cannot-retrieve-id-from-docker-when-building-docker-image-usin
 * SSH credentials used for git checkout are passed to maven using "ssh-agent". Works only git using SSH key authentification
 
