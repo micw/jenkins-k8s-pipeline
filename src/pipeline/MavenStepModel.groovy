@@ -50,6 +50,7 @@ class MavenStepModel extends AbstractStepModel {
 				def mavenCommand="""
 					export _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true
 					export DOCKER_HOST=127.0.0.1
+					[ -z "${DOCKER_CONFIG} ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
 					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${goal}
 				"""
 
@@ -64,6 +65,7 @@ class MavenStepModel extends AbstractStepModel {
 				def mavenCommand="""
 					export _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true
 					export DOCKER_HOST=127.0.0.1
+					[ -z "\${DOCKER_CONFIG}" ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
 					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${goal}
 				"""
 
@@ -108,10 +110,6 @@ class MavenStepModel extends AbstractStepModel {
 		// also extend the shell command to make the docker registry settings usable
 		if (config.dockerRegistry) {
 			def innerBody=body
-			mavenCommand = """
-				rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker
-				${mavenCommand}
-			"""
 			body={
 				globals.docker.withRegistry("https://${config.dockerRegistry}",config.dockerRegistryCredentialsId)  {
 					innerBody()
