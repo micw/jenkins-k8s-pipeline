@@ -5,6 +5,8 @@ class MavenStepModel extends AbstractStepModel {
 
 	boolean deploy=false
 	boolean skipTests=false
+	boolean appendBranchToVersion=true
+	List appendBranchToVersionExceptBranches=["master"]
 	String extraOpts=""
 	List mavenReleaseBranches=[]
 
@@ -14,6 +16,15 @@ class MavenStepModel extends AbstractStepModel {
 
 	void skipTests(boolean skipTests=true) {
 		this.skipTests=skipTests
+	}
+
+	void appendBranchToVersion(boolean appendBranchToVersion=true, String... appendBranchToVersionExceptBranches) {
+		this.appendBranchToVersion=appendBranchToVersion
+		if (appendBranchToVersionExceptBranches.length==0) {
+			this.appendBranchToVersionExceptBranches=["master"]
+		} else {
+			this.appendBranchToVersionExceptBranches=appendBranchToVersionExceptBranches as List
+		}
 	}
 
 	void options(String extraOpts="") {
@@ -75,7 +86,7 @@ class MavenStepModel extends AbstractStepModel {
 				"""
 
 				def mavenVersion
-				if (globals.gitInfo.isMaster || globals.gitInfo.isTag) {
+				if (globals.gitInfo.isTag || !appendBranchToVersion || (globals.gitInfo.name in this.appendBranchToVersionExceptBranches)) {
 					mavenVersion=pomInfo.version
 				} else {
 					mavenVersion=pomInfo.version.replace("-SNAPSHOT","")+"-"+globals.gitInfo.name.replace("/","-")+"-SNAPSHOT"

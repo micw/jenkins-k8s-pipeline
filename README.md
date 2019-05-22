@@ -126,7 +126,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 To use the pipeline in a maven (or other) project, create a file Jenkinsfile.groovy in the root of your project's git repository. It has the following syntax:
 
 ```
-@Library("JenkinsPipeline@v0.4") _
+@Library("JenkinsPipeline@v0.5") _
 
 JenkinsPipeline {
     config {
@@ -138,6 +138,7 @@ JenkinsPipeline {
         deploy(true)
         skipTests(false)
         enableReleases("master","other-branch")
+        appendBranchToVersion(true,"master","other-branch")
         options("-Dmyprop=${vars.GIT_BRANCH_OR_TAG_NAME}")
         after {}
     }
@@ -169,6 +170,7 @@ JenkinsPipeline {
         * The tag will be release-1.2.3 (where 1.2.3 is the maven release version)
         * The release itself will be build by a new jenkins job created from the new tag
     * with options(), additional command line options can be passed to maven
+    * if appendBranchToVersion is set to true, the branch name will be added to maven before deploying to nexus. This allows to have snapshot of branch builds. Optionally a list of branches that will not be added to the version can be specified (default is to append all branches except "master")
 * If a docker section is present, a docker build+push will be performed
     * imageName must be set
     * tag may be set. If not set, the current git branch or tag will be used.
