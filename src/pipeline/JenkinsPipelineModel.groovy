@@ -30,7 +30,7 @@ class JenkinsPipelineModel {
 		steps.podTemplate(
 			label: buildSlaveLabel,
 			containers: [
-				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:alpine',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
+				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:3.29-1-alpine',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
 				steps.containerTemplate(name: 'docker', image: 'docker:18.09-dind', privileged: true, alwaysPullImage: true),
 				steps.containerTemplate(name: 'maven', image: 'evermind/jenkins-maven:3-jdk-8-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
 			]) {	
