@@ -61,7 +61,7 @@ class MavenStepModel extends AbstractStepModel {
 				def releaseVersion="${globals.env.NEW_MAVEN_VERSION}"
 				def releaseTag="release-${releaseVersion}"
 
-				def goal="release:prepare -DpreparationGoals='verify' -DtagNameFormat='${releaseTag}' -DreleaseVersion=${releaseVersion}"
+				def goal="release:prepare -Darguments=-Dmaven.test.skip=${skipTests} -DpreparationGoals='verify' -DtagNameFormat='${releaseTag}' -DreleaseVersion=${releaseVersion}"
 
 				def mavenCommand="""
 					export _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true
