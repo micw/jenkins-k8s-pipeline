@@ -126,7 +126,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 To use the pipeline in a maven (or other) project, create a file Jenkinsfile.groovy in the root of your project's git repository. It has the following syntax:
 
 ```
-@Library("JenkinsPipeline@v0.5") _
+@Library("JenkinsPipeline@v0.6") _
 
 JenkinsPipeline {
     config {
