@@ -29,6 +29,9 @@ class JenkinsPipelineModel {
 		def buildSlaveLabel="${UUID.randomUUID().toString()}"
 		steps.podTemplate(
 			label: buildSlaveLabel,
+			volumes: [
+				steps.emptyDirVolume(mountPath: '/home/jenkins', memory: false)
+			],
 			containers: [
 				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:3.29-1-alpine',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
 				steps.containerTemplate(name: 'docker', image: 'docker:18.09-dind', privileged: true, alwaysPullImage: true),
