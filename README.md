@@ -143,6 +143,7 @@ JenkinsPipeline {
         after {}
     }
     docker {
+        dir("docker")
         before {}
         imageName("${vars.MAVEN_ARTIFACT}")
         tag("${vars.MAVEN_VERSION}")
@@ -174,6 +175,8 @@ JenkinsPipeline {
 * If a docker section is present, a docker build+push will be performed
     * imageName must be set
     * tag may be set. If not set, the current git branch or tag will be used.
+    * If dir is set, the docker build command is exewcuted in the given directory
+    * Multiple docker sections are allowed, so it's possible to build more than one docker image (using the dir option)
 * All sections (except config) allow a before{} and after{} block that will be executed before/after the actual block execution (e.g. before/after maven build)
     * These blocks can contain any jenkins pipeline command
     * On maven, before/after blocks are ommitted when preparing a release

@@ -18,6 +18,11 @@ class DockerStepModel extends AbstractStepModel {
 		this.tag=tag
 	}
 
+	String dir = null
+	void dir(String dir) {
+		this.dir=dir
+	}
+
 	void doExecute(config,Map globals) {
 
 		def steps=globals.steps
@@ -41,6 +46,17 @@ class DockerStepModel extends AbstractStepModel {
 			steps.sh("docker push ${imageName}:${tag}")
 			runAfterScripts(config,globals)
 		}
+
+		// change directory before build?
+		if (dir) {
+			def innerBody=body
+			body={
+				steps.dir(dir) {
+					innerBody()
+				}
+			}
+		}
+
 
 		// if docker registry is configured, wrap this in "docker.withRegistry"
 		// and add the registry to the image name
