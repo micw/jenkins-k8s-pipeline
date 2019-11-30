@@ -9,6 +9,7 @@ class MavenStepModel extends AbstractStepModel {
 	List appendBranchToVersionExceptBranches=["master"]
 	String extraOpts=""
 	List mavenReleaseBranches=[]
+	String javaOpts = "-Djava.security.egd=file:///dev/urandom -Duser.language=de -Duser.region=DE -Dfile.encoding=UTF8"
 
 	void deploy(boolean deploy=true) {
 		this.deploy=deploy
@@ -63,11 +64,14 @@ class MavenStepModel extends AbstractStepModel {
 
 				def goal="release:prepare -Darguments=-Dmaven.test.skip=${skipTests} -DpreparationGoals='verify' -DtagNameFormat='${releaseTag}' -DreleaseVersion=${releaseVersion}"
 
+		/*
+		export _JAVA_OPTIONS="-Djdk.net.URLClassPath.disableClassPathURLCheck=true -Duser.language=de -Duser.region=DE -Dfile.encoding=UTF8"
+		*/
 				def mavenCommand="""
-					export _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true
+					export _JAVA_OPTIONS="-Djdk.net.URLClassPath.disableClassPathURLCheck=true"
 					export DOCKER_HOST=127.0.0.1
 					[ -z "\${DOCKER_CONFIG}" ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
-					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
+					mvn -B -DargLine='${javaOpts}' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
 				"""
 
 				globals.currentBuild.description="Prepare release of ${releaseVersion}"
@@ -79,10 +83,10 @@ class MavenStepModel extends AbstractStepModel {
 				def goal=deploy?"deploy":"verify"
 
 				def mavenCommand="""
-					export _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true
+					export _JAVA_OPTIONS="-Djdk.net.URLClassPath.disableClassPathURLCheck=true"
 					export DOCKER_HOST=127.0.0.1
 					[ -z "\${DOCKER_CONFIG}" ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
-					mvn -B -DargLine='-Djava.security.egd=file:///dev/urandom' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
+					mvn -B -DargLine='${javaOpts}' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
 				"""
 
 				def mavenVersion
