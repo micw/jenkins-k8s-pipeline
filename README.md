@@ -181,6 +181,19 @@ JenkinsPipeline {
     * These blocks can contain any jenkins pipeline command
     * On maven, before/after blocks are ommitted when preparing a release
 
+## Customize docker container
+
+Pipeline steps support shell commands within before-block. See example:
+
+```groovy
+        before {
+          sh '''
+            sudo apt-get update
+            sudo apt-get install -y {package dependencies}
+          '''
+        }
+```
+
 ## Set up the multibranch pipeline job on jenkins
 
 * Create a new job of type "multibranch pipeline"
