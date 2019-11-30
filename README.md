@@ -172,6 +172,7 @@ JenkinsPipeline {
         * The release itself will be build by a new jenkins job created from the new tag
     * with options(), additional command line options can be passed to maven
     * if appendBranchToVersion is set to true, the branch name will be added to maven before deploying to nexus. This allows to have snapshot of branch builds. Optionally a list of branches that will not be added to the version can be specified (default is to append all branches except "master")
+    * locale setting for java processing is 'user.language=de, user.region=DE' by default
 * If a docker section is present, a docker build+push will be performed
     * imageName must be set
     * tag may be set. If not set, the current git branch or tag will be used.
