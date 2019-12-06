@@ -172,6 +172,7 @@ JenkinsPipeline {
         * The release itself will be build by a new jenkins job created from the new tag
     * with options(), additional command line options can be passed to maven
     * if appendBranchToVersion is set to true, the branch name will be added to maven before deploying to nexus. This allows to have snapshot of branch builds. Optionally a list of branches that will not be added to the version can be specified (default is to append all branches except "master")
+    * locale setting for java processing is 'user.language=de, user.region=DE' by default
 * If a docker section is present, a docker build+push will be performed
     * imageName must be set
     * tag may be set. If not set, the current git branch or tag will be used.
@@ -180,6 +181,19 @@ JenkinsPipeline {
 * All sections (except config) allow a before{} and after{} block that will be executed before/after the actual block execution (e.g. before/after maven build)
     * These blocks can contain any jenkins pipeline command
     * On maven, before/after blocks are ommitted when preparing a release
+
+## Customize docker container
+
+Pipeline steps support shell commands within before-block. See example:
+
+```groovy
+        before {
+          sh '''
+            sudo apt-get update
+            sudo apt-get install -y {package dependencies}
+          '''
+        }
+```
 
 ## Set up the multibranch pipeline job on jenkins
 
