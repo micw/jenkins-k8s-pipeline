@@ -27,19 +27,21 @@ class DockerStepModel extends AbstractStepModel {
 
 		def steps=globals.steps
 
-		def imageName=this.imageName
-
-		if (!imageName) {
-			steps.error("Docker imageName is not set!")
-		}
-
-		if (!tag) {
-			tag(globals.gitInfo.name)
-			steps.echo("Docker tag is not set. Using '${tag}' derived from git tag or branch")
-		}
 
 		def body={
 			runBeforeScripts(config,globals)
+
+			// to allow variable setting inside before block check after runBefore
+			def imageName=this.imageName
+			if (!imageName) {
+				steps.error("Docker imageName is not set!")
+			}
+
+			if (!tag) {
+				tag(globals.gitInfo.name)
+				steps.echo("Docker tag is not set. Using '${tag}' derived from git tag or branch")
+			}
+
 			steps.echo("Building docker image '${imageName}'")
 			steps.sh("docker build . -t ${imageName}:${tag}")
 			steps.echo("Pushing docker image '${imageName}' with tag '${tag}'")
