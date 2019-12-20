@@ -126,7 +126,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 To use the pipeline in a maven (or other) project, create a file Jenkinsfile.groovy in the root of your project's git repository. It has the following syntax:
 
 ```
-@Library("JenkinsPipeline@v0.6") _
+@Library("JenkinsPipeline@v0.7") _
 
 JenkinsPipeline {
     config {
@@ -224,3 +224,23 @@ Workarounds are implemented for:
 * https://stackoverflow.com/questions/51678535/how-to-resolve-cannot-retrieve-id-from-docker-when-building-docker-image-usin
 * SSH credentials used for git checkout are passed to maven using "ssh-agent". Works only git using SSH key authentification
 
+## Maven deployment fails due to missing distributionManagement
+
+If the following error occurs:
+
+> [ERROR] Failed to execute goal org.apache.maven.plugins:maven-deploy-plugin:2.7:deploy (default-deploy) on project my-project-name: Deployment failed: repository element was not specified in the POM inside distributionManagement element or in -DaltDeploymentRepository=id::layout::url parameter -> [Help 1]
+
+the maven deploy plug-in must be upgraded at least to version 2.8. You can to this by adding to your pom:
+
+```xml
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+	        		<artifactId>maven-deploy-plugin</artifactId>
+	        		<version>2.8</version>
+	        	</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+```
