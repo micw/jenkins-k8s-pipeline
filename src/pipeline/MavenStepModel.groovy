@@ -10,6 +10,7 @@ class MavenStepModel extends AbstractStepModel {
 	String extraOpts=""
 	List mavenReleaseBranches=[]
 	String javaOpts = "-Djava.security.egd=file:///dev/urandom -Duser.language=de -Duser.region=DE -Dfile.encoding=UTF8"
+	int javaVersionNumber=8
 
 	void deploy(boolean deploy=true) {
 		this.deploy=deploy
@@ -17,6 +18,10 @@ class MavenStepModel extends AbstractStepModel {
 
 	void skipTests(boolean skipTests=true) {
 		this.skipTests=skipTests
+	}
+
+	void javaVersion(int javaVersionNumber) {
+		this.javaVersionNumber=javaVersionNumber
 	}
 
 	void appendBranchToVersion(boolean appendBranchToVersion=true, String... appendBranchToVersionExceptBranches) {
@@ -137,7 +142,7 @@ class MavenStepModel extends AbstractStepModel {
 			}
 		}
 		steps.stage('Maven build') {
-			steps.container("maven") {
+			steps.container("maven-java"+javaVersionNumber) {
 				body()
 			}
 		}

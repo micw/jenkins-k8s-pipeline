@@ -1,5 +1,7 @@
 package pipeline
 
+import groovy.inspect.swingui.AstNodeToScriptVisitor
+
 class JenkinsPipelineModel {
 
 	def config=new PipelineConfigModel()
@@ -13,11 +15,13 @@ class JenkinsPipelineModel {
 	}
 
 	def maven(Closure body) {
-		pipelineSteps.add(new MavenStepModel(body,vars))
+		def model=new MavenStepModel(body,vars);
+		pipelineSteps.add(model)
 	}
 
 	def docker(Closure body) {
-		pipelineSteps.add(new DockerStepModel(body,vars))
+		def model=new DockerStepModel(body,vars)
+		pipelineSteps.add(model)
 	}
 
 	public void execute(Map globals) {
@@ -26,17 +30,20 @@ class JenkinsPipelineModel {
 
 		def steps=globals.steps
 
+		def containers=[
+				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:3.29-1-alpine',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
+				steps.containerTemplate(name: 'docker', image: 'docker:18.09-dind', privileged: true, alwaysPullImage: true),
+				steps.containerTemplate(name: 'maven-java8', image: 'evermind/jenkins-maven:3-jdk-8-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
+				steps.containerTemplate(name: 'maven-java11', image: 'evermind/jenkins-maven:3-jdk-11-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
+			]
+
 		def buildSlaveLabel="${UUID.randomUUID().toString()}"
 		steps.podTemplate(
 			label: buildSlaveLabel,
 			volumes: [
 				steps.emptyDirVolume(mountPath: '/home/jenkins', memory: false)
 			],
-			containers: [
-				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:3.29-1-alpine',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
-				steps.containerTemplate(name: 'docker', image: 'docker:18.09-dind', privileged: true, alwaysPullImage: true),
-				steps.containerTemplate(name: 'maven', image: 'evermind/jenkins-maven:3-jdk-8-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
-			]) {	
+			containers: containers) {	
 			steps.node(buildSlaveLabel) {
 				GitInfo gitInfo=new GitInfo()
 				steps.stage('Checkout SCM') {
