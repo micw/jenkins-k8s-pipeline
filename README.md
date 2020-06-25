@@ -246,3 +246,25 @@ the maven deploy plug-in must be upgraded at least to version 2.8. You can to th
 		</pluginManagement>
 	</build>
 ```
+
+## Maven releases fails with "Please tell me who you are"
+
+There's an issue in Jenkins (https://issues.jenkins-ci.org/browse/JENKINS-43563) that produces the following error:
+
+```
+[ERROR] The git-commit command failed.
+[ERROR] Command output:
+[ERROR] 
+[ERROR] *** Please tell me who you are.
+[ERROR] 
+[ERROR] Run
+[ERROR] 
+[ERROR]   git config --global user.email "you@example.com"
+[ERROR]   git config --global user.name "Your Name"
+[ERROR] 
+[ERROR] to set your account's default identity.
+[ERROR] Omit --global to set the identity only in this repository.
+[ERROR]
+```
+
+The pipeline implements the workaround to set git user.name and user.email via shell. To make this work, you need to define the name and email in Jenkins settings (see [GIT settings](#git-settings) above).
