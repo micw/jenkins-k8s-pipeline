@@ -62,6 +62,7 @@ class JenkinsPipelineModel {
 					if (globals.scm.userRemoteConfigs.size()>0 && globals.scm.userRemoteConfigs[0].credentialsId) {
 						globals['gitCredentialsId']=globals.scm.userRemoteConfigs[0].credentialsId
 					}
+					// Workaround for https://issues.jenkins-ci.org/browse/JENKINS-43563, see README.md
 					if (scmvars.GIT_AUTHOR_NAME && scmvars.GIT_AUTHOR_EMAIL) {
 						steps.sh(script:"""
 							git config user.name '${scmvars.GIT_AUTHOR_NAME}'
