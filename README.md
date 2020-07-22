@@ -268,3 +268,11 @@ There's an issue in Jenkins (https://issues.jenkins-ci.org/browse/JENKINS-43563)
 ```
 
 The pipeline implements the workaround to set git user.name and user.email via shell. To make this work, you need to define the name and email in Jenkins settings (see [GIT settings](#git-settings) above).
+
+## Pipeline jobs are not triggered by upstream maven SNAPSHOT builds
+
+See https://plugins.jenkins.io/pipeline-maven/#PipelineMavenPlugin-Mydownstreampipelinesdon'tgettriggeredevenifIuse%22BuildwheneveraSNAPSHOTdependencyisbuilt%22
+
+In most cases, you just need to go to Manage Jenkins -> Global Tools Configuration -> Add Publisher and add "Pipeline Graph Publisher":
+
+![](assets/screenshot_jenkins_publisher1.png)
