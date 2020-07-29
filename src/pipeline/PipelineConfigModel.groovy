@@ -7,10 +7,14 @@ class PipelineConfigModel {
 	boolean executed=false
 	Map globals
 	List jobParameters=[]
+	String kubeconfigCredentialsId
 
 	def dockerRegistry(registry,credentialsId=null) {
 		dockerRegistry=registry
 		dockerRegistryCredentialsId=credentialsId
+	}
+	def kubeconfig(credentialsId) {
+		kubeconfigCredentialsId=credentialsId
 	}
 
 	String mavenSettingsId

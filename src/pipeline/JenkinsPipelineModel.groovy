@@ -29,18 +29,25 @@ class JenkinsPipelineModel {
 		pipelineSteps.add(model)
 	}
 
+	def k8s(Closure body) {
+		def model=new K8SStepModel(body,vars)
+		pipelineSteps.add(model)
+	}
+
 	public void execute(Map globals) {
 
 		config.execute(globals)
 
 		def steps=globals.steps
 
+		// TODO: launch only containers required for the used steps
 		def containers=[
 				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:3.29-1-alpine',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
 				steps.containerTemplate(name: 'docker', image: 'docker:18.09-dind', privileged: true, alwaysPullImage: true),
 				steps.containerTemplate(name: 'maven-java8', image: 'evermind/jenkins-maven:3-jdk-8-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
 				steps.containerTemplate(name: 'maven-java11', image: 'evermind/jenkins-maven:3-jdk-11-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
 				steps.containerTemplate(name: 'node13', image: 'library/node:13-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
+				steps.containerTemplate(name: 'k8s', image: 'dtzar/helm-kubectl:3.1.2', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
 			]
 
 		def buildSlaveLabel="${UUID.randomUUID().toString()}"
