@@ -17,9 +17,16 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
        * Jenkins picks up the tag and builds the release it using the same pipeline that is used for non-release builds
        * The maven release plug-in is only be used for tagging and versioning, so all pipeline steps required for release are performed (not only the maven part)
 
+* node build
+    * Run npm / yarn commands
+
 * docker build
    * determine docker tag from git branch/tag
    * Configure which docker setting to use
+
+* kubernetes deployments
+    * Run kubectl / helm3 commands
+    * Configure which maven kubeconfig to use (provided by jenkins)
 
 * Build environment (currently fixed, will be extended and make customizable in later versions)
   * jenkins/jnlp-slave:alpine (until 3.27-2-alpine or higher is released which contains https://github.com/jenkinsci/docker-jnlp-slave/pull/80)
@@ -120,18 +127,24 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 * Go to "Manage Jenkins" -> "Configure System" -> Subsection "Git plugin"
 * Set "Global Config user.name Value" and "Global Config user.email Value"
 
+### Kubeconfig settings
+
+* To execute helm3 or kubectl commands agains a remote k8s cluster (e.g. to trigger a deployment), a kubeconfig is required
+* Go to "Manage Jenkins" -> "Managed files" and create a new "Custom file"
+* Add your kubeconfig file. Use a speaking ID, e.g. my-kubeconfig which can later be referenced in the pipeline
 
 ## Project's Jenkinsfile
 
 To use the pipeline in a maven (or other) project, create a file Jenkinsfile.groovy in the root of your project's git repository. It has the following syntax:
 
 ```
-@Library("JenkinsPipeline@v0.7") _
+@Library("JenkinsPipeline@v0.8") _
 
 JenkinsPipeline {
     config {
         mavenSettings("my-maven-settings")
         dockerRegistry("registry.mydomain.com","my-docker-credentials")
+        kubeconfig("my-kubeconfig")
     }
     maven {
         javaVersion(8)
@@ -143,6 +156,13 @@ JenkinsPipeline {
         options("-Dmyprop=${vars.GIT_BRANCH_OR_TAG_NAME}")
         after {}
     }
+    node {
+      dir("frontend")
+      before {
+        sh "yarn install && yarn build"
+        sh "chown 1000.1000 build -R"
+      }
+    }
     docker {
         dir("docker")
         before {}
@@ -150,6 +170,14 @@ JenkinsPipeline {
         tag("${vars.MAVEN_VERSION}")
         after {}
     }
+    k8s {
+      before {
+        sh """
+          kubectl --namespace myapp patch deployment myapp --patch '{ "spec":{"template":{"metadata":{"annotations":{"redeploy-enforced-by":"${JOB_NAME}-${BUILD_NUMBER}"}}}}}'
+          """
+      }
+    }
+
 }
 ```
 
@@ -161,6 +189,7 @@ JenkinsPipeline {
     * mavenSettings() references the ID of the Maven settings.xml described above
     * dockerRegistry() tells docker to use this registry URL (optionally with a credentials ID)
         * if set, all steps will be run with this docker registry configured (e.g. maven tasks that pull docker images will use it)
+    * kubeconfig() references the ID of the kubeconfig described above
 * If a maven section is present, a maven build will be done
     * if deploy is set to false (default) "mvn verify" is executed. If set to true, "mvn deploy" is executed
     * if skipTests is set to true, maven tests are skipped
@@ -183,6 +212,12 @@ JenkinsPipeline {
 * All sections (except config) allow a before{} and after{} block that will be executed before/after the actual block execution (e.g. before/after maven build)
     * These blocks can contain any jenkins pipeline command
     * On maven, before/after blocks are ommitted when preparing a release
+* If a node section is pressent, a node container (containing tools like npm and yarn) is launched
+    * the before/after blocks are executed in the node container and can contain arbitrary commands like "npm install"
+    * currently, the container runs on a different user-id than the other containers, so run a "chown 1000.1000" as last command to allow the other containers to access the build results
+* If a k8s secion is pressent, a container with kubernetes tools (helm3, kubectl) is launched
+    * the before/after blocks are executed in the k8s container and can contain arbitrary commands like "kubectl patch"
+    * if a kubeconfig is defined in the config section, it is used within tha container
 
 ## Customize docker container
 
