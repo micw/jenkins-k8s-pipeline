@@ -40,14 +40,14 @@ abstract class AbstractStepModel {
 	void runBeforeScripts(config,Map globals) {
 		if (beforeClosure) {
 			beforeClosure.delegate=globals.jenkins
-			beforeClosure.resolveStrategy=Closure.DELEGATE_ONLY
+			beforeClosure.resolveStrategy=Closure.DELEGATE_FIRST
 			beforeClosure()
 		}
 	}
 	void runAfterScripts(config,Map globals) {
 		if (afterClosure) {
 			afterClosure.delegate=globals.jenkins
-			afterClosure.resolveStrategy=Closure.DELEGATE_ONLY
+			afterClosure.resolveStrategy=Closure.DELEGATE_FIRST
 			afterClosure()
 		}
 	}
