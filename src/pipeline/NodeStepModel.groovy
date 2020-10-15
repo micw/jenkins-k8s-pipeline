@@ -29,7 +29,7 @@ class NodeStepModel extends AbstractStepModel {
 			}
 		}
 
-		steps.stage('Node build') {
+		steps.stage(stepName) {
 			steps.container("node13") {
 				body()
 			}

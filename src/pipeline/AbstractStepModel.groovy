@@ -2,13 +2,15 @@ package pipeline
 
 abstract class AbstractStepModel {
 
+	String stepName
 	Closure bodyClosure
 	Map vars
 
 	Closure beforeClosure
 	Closure afterClosure
 
-	AbstractStepModel(Closure bodyClosure,Map vars) {
+	AbstractStepModel(String stepName, Closure bodyClosure,Map vars) {
+		this.stepName=stepName
 		this.bodyClosure=bodyClosure
 		this.vars=vars
 		bodyClosure.delegate=this

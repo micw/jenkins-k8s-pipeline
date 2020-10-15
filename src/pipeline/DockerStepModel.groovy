@@ -71,7 +71,7 @@ class DockerStepModel extends AbstractStepModel {
 				}
 			}
 		}
-		steps.stage('Docker build') {
+		steps.stage(stepName) {
 			steps.container("docker") {
 				body()
 			}

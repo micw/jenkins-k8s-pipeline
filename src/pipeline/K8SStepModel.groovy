@@ -39,7 +39,7 @@ class K8SStepModel extends AbstractStepModel {
 		}
 
 
-		steps.stage('K8S deployment') {
+		steps.stage(stepName) {
 			steps.container("k8s") {
 				body()
 			}

@@ -14,23 +14,23 @@ class JenkinsPipelineModel {
 		body()
 	}
 
-	def maven(Closure body) {
-		def model=new MavenStepModel(body,vars);
+	def maven(String stepName='Maven build', Closure body) {
+		def model=new MavenStepModel(stepName,body,vars);
 		pipelineSteps.add(model)
 	}
 
-	def docker(Closure body) {
-		def model=new DockerStepModel(body,vars)
+	def docker(String stepName='Docker build', Closure body) {
+		def model=new DockerStepModel(stepName,body,vars)
 		pipelineSteps.add(model)
 	}
 
-	def node(Closure body) {
-		def model=new NodeStepModel(body,vars)
+	def node(String stepName='Node build', Closure body) {
+		def model=new NodeStepModel(stepName,body,vars)
 		pipelineSteps.add(model)
 	}
 
-	def k8s(Closure body) {
-		def model=new K8SStepModel(body,vars)
+	def k8s(String stepName='K8S deployment', Closure body) {
+		def model=new K8SStepModel(stepName,body,vars)
 		pipelineSteps.add(model)
 	}
 

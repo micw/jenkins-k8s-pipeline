@@ -141,7 +141,7 @@ class MavenStepModel extends AbstractStepModel {
 				}
 			}
 		}
-		steps.stage('Maven build') {
+		steps.stage(stepName) {
 			steps.container("maven-java"+javaVersionNumber) {
 				body()
 			}

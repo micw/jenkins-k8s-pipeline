@@ -170,6 +170,13 @@ JenkinsPipeline {
         tag("${vars.MAVEN_VERSION}")
         after {}
     }
+    docker "docker2", {
+        dir("docker")
+        before {}
+        imageName("${vars.MAVEN_ARTIFACT}")
+        tag("${vars.MAVEN_VERSION}")
+        after {}
+    }
     k8s {
       before {
         sh """
@@ -218,6 +225,7 @@ JenkinsPipeline {
 * If a k8s secion is pressent, a container with kubernetes tools (helm3, kubectl) is launched
     * the before/after blocks are executed in the k8s container and can contain arbitrary commands like "kubectl patch"
     * if a kubeconfig is defined in the config section, it is used within tha container
+* Each step can be repeated multiple times. It is possible to set the name for each step, e.g. `docker "my-step-name", { ...` - see above for an example.
 
 ## Customize docker container
 
