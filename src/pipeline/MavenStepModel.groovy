@@ -12,6 +12,12 @@ class MavenStepModel extends AbstractStepModel {
 	String javaOpts = "-Djava.security.egd=file:///dev/urandom -Duser.language=de -Duser.region=DE -Dfile.encoding=UTF8"
 	int javaVersionNumber=8
 
+
+	String dir = null
+	void dir(String dir) {
+		this.dir=dir
+	}
+
 	void deploy(boolean deploy=true) {
 		this.deploy=deploy
 	}
@@ -109,6 +115,16 @@ class MavenStepModel extends AbstractStepModel {
 				runBeforeScripts(config,globals)
 				steps.sh(mavenCommand)
 				runAfterScripts(config,globals)
+			}
+		}
+
+		// change directory before build?
+		if (dir) {
+			def innerBody=body
+			body={
+				steps.dir(dir) {
+					innerBody()
+				}
 			}
 		}
 

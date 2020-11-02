@@ -147,6 +147,7 @@ JenkinsPipeline {
         kubeconfig("my-kubeconfig")
     }
     maven {
+        dir("backend")
         javaVersion(8)
         before {}
         deploy(true)
@@ -157,11 +158,11 @@ JenkinsPipeline {
         after {}
     }
     node {
-      dir("frontend")
-      before {
-        sh "yarn install && yarn build"
-        sh "chown 1000.1000 build -R"
-      }
+        dir("frontend")
+        before {
+            sh "yarn install && yarn build"
+            sh "chown 1000.1000 build -R"
+        }
     }
     docker {
         dir("docker")
@@ -178,11 +179,11 @@ JenkinsPipeline {
         after {}
     }
     k8s {
-      before {
-        sh """
-          kubectl --namespace myapp patch deployment myapp --patch '{ "spec":{"template":{"metadata":{"annotations":{"redeploy-enforced-by":"${JOB_NAME}-${BUILD_NUMBER}"}}}}}'
-          """
-      }
+        before {
+            sh """
+              kubectl --namespace myapp patch deployment myapp --patch '{ "spec":{"template":{"metadata":{"annotations":{"redeploy-enforced-by":"${JOB_NAME}-${BUILD_NUMBER}"}}}}}'
+              """
+        }
     }
 
 }
@@ -201,6 +202,7 @@ JenkinsPipeline {
     * if deploy is set to false (default) "mvn verify" is executed. If set to true, "mvn deploy" is executed
     * if skipTests is set to true, maven tests are skipped
     * The maven section adds MAVEN_GROUP, MAVEN_ARTIFACT and MAVEN_VERSION to the "vars" which can be referenced by other sections
+    * If dir is set, the maven command is executed in the given directory
     * With enableReleases it is possible to enable maven releases on specific branches
         * enableReleases() without branches enables it for "master"
         * When a build is performed on this branch, parameters are added to the job to perform a maven release and to set the next version
@@ -214,7 +216,7 @@ JenkinsPipeline {
 * If a docker section is present, a docker build+push will be performed
     * imageName must be set
     * tag may be set. If not set, the current git branch or tag will be used.
-    * If dir is set, the docker build command is exewcuted in the given directory
+    * If dir is set, the docker build command is executed in the given directory
     * Multiple docker sections are allowed, so it's possible to build more than one docker image (using the dir option)
 * All sections (except config) allow a before{} and after{} block that will be executed before/after the actual block execution (e.g. before/after maven build)
     * These blocks can contain any jenkins pipeline command
