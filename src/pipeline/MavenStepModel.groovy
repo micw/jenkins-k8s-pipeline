@@ -80,8 +80,6 @@ class MavenStepModel extends AbstractStepModel {
 		*/
 				def mavenCommand="""
 					export _JAVA_OPTIONS="-Djdk.net.URLClassPath.disableClassPathURLCheck=true"
-					export DOCKER_HOST=tcp://127.0.0.1:2375
-					[ -z "\${DOCKER_CONFIG}" ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
 					mvn -B -DargLine='${javaOpts}' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
 				"""
 
@@ -95,8 +93,6 @@ class MavenStepModel extends AbstractStepModel {
 
 				def mavenCommand="""
 					export _JAVA_OPTIONS="-Djdk.net.URLClassPath.disableClassPathURLCheck=true"
-					export DOCKER_HOST=tcp://127.0.0.1:2375
-					[ -z "\${DOCKER_CONFIG}" ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
 					mvn -B -DargLine='${javaOpts}' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
 				"""
 
@@ -111,6 +107,11 @@ class MavenStepModel extends AbstractStepModel {
 					"""
 				}
 				globals.currentBuild.description=mavenVersion
+
+				// setup docker environment
+				steps.sh("""
+					[ -z "\${DOCKER_CONFIG}" ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
+				""")
 
 				runBeforeScripts(config,globals)
 				steps.sh(mavenCommand)
@@ -159,7 +160,9 @@ class MavenStepModel extends AbstractStepModel {
 		}
 		steps.stage(stepName) {
 			steps.container("maven-java"+javaVersionNumber) {
-				body()
+				steps.withEnv(['DOCKER_HOST=tcp://127.0.0.1:2375']) {
+					body()
+				}
 			}
 		}
 	}
