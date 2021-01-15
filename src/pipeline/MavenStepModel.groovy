@@ -59,6 +59,11 @@ class MavenStepModel extends AbstractStepModel {
 
 			def pomInfo=steps.readMavenPom(file: 'pom.xml')
 
+
+			if (pomInfo.version.contains('${')) { // version contains a variable - need to run maven to get the real version
+				pomInfo.version=steps.sh(returnStdout: true, script: 'mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout | tail -1').trim()
+			}
+
 			if ((globals.gitInfo.name in this.mavenReleaseBranches) && !globals.gitInfo.isTag) {
 				config.booleanParameter("MAVEN_RELEASE","Release a new maven version",false)
 				config.stringParameter("NEW_MAVEN_VERSION","Version to use for release",pomInfo.version.replace("-SNAPSHOT",""))
