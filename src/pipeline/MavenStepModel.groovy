@@ -51,6 +51,18 @@ class MavenStepModel extends AbstractStepModel {
 		}
 	}
 
+	@Override
+	List getExtraContainers(config) {
+		bodyClosure(config,[:])
+		return [[
+			name: "maven-java"+javaVersionNumber,
+			image:"evermind/jenkins-maven:3-jdk-"+javaVersionNumber+"-slim",
+			command: 'cat',
+			ttyEnabled: true,
+			alwaysPullImage: true
+		]]
+	}
+
 	void doExecute(config,Map globals) {
 
 		def steps=globals.steps
