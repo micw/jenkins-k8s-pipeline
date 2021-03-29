@@ -7,6 +7,7 @@ class JenkinsPipelineModel {
 	def config=new PipelineConfigModel()
 	def pipelineSteps=[]
 	def vars=[:]
+	def stepContainers=[:]
 
 	def config(body) {
 		body.delegate=config
@@ -40,15 +41,19 @@ class JenkinsPipelineModel {
 
 		def steps=globals.steps
 
-		// TODO: launch only containers required for the used steps
 		def containers=[
 				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:3.29-1-alpine',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
-				steps.containerTemplate(name: 'docker', image: 'docker:18.09-dind', privileged: true, alwaysPullImage: true, args: '--mtu 1350'),
-				steps.containerTemplate(name: 'maven-java8', image: 'evermind/jenkins-maven:3-jdk-8-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
-				steps.containerTemplate(name: 'maven-java11', image: 'evermind/jenkins-maven:3-jdk-11-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
-				steps.containerTemplate(name: 'node13', image: 'library/node:13-slim', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
-				steps.containerTemplate(name: 'k8s', image: 'dtzar/helm-kubectl:3.1.2', command: 'cat', ttyEnabled: true, alwaysPullImage: true),
+				steps.containerTemplate(name: 'docker', image: 'docker:18.09-dind', privileged: true, alwaysPullImage: true, args: '--mtu 1350')
 			]
+		// launch additional containers required for the used steps
+		Set containerNames=[]
+		for (step in pipelineSteps) {
+			for (c in step.getExtraContainers(config)) {
+				if (containerNames.add(c.name)) {
+					containers.add(steps.containerTemplate(c))
+				}
+			}
+		}
 
 		def buildSlaveLabel="${UUID.randomUUID().toString()}"
 		steps.podTemplate(

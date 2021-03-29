@@ -28,11 +28,13 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
     * Run kubectl / helm3 commands
     * Configure which maven kubeconfig to use (provided by jenkins)
 
-* Build environment (currently fixed, will be extended and make customizable in later versions)
+* Build environment
   * jenkins/jnlp-slave:alpine (until 3.27-2-alpine or higher is released which contains https://github.com/jenkinsci/docker-jnlp-slave/pull/80)
   * docker:stable-dind
   * evermind/jenkins-maven:3-jdk-8-slim (Maven 3.x, OpenJDK 8.x)
       * This is basically the official image but running with the same user id as jenkins slave does which is important to avoid lots of unexpected behaviour (e.g. non-working ssh client due to file owner mismatch)
+  * evermind/jenkins-maven:3-jdk-11-slim (if javaVersion is set to 11)
+  * library/node:XX-slim where XX depends on "nodeVersion" and defaults to 13
 
 # Usage
 
@@ -159,6 +161,7 @@ JenkinsPipeline {
     }
     node {
         dir("frontend")
+        nodeVersion(13)
         before {
             sh "yarn install && yarn build"
             sh "chown 1000.1000 build -R"
@@ -224,6 +227,7 @@ JenkinsPipeline {
 * If a node section is pressent, a node container (containing tools like npm and yarn) is launched
     * the before/after blocks are executed in the node container and can contain arbitrary commands like "npm install"
     * currently, the container runs on a different user-id than the other containers, so run a "chown 1000.1000" as last command to allow the other containers to access the build results
+    * nodeVersion() sets the node version to use for this build. Default is 13
 * If a k8s secion is pressent, a container with kubernetes tools (helm3, kubectl) is launched
     * the before/after blocks are executed in the k8s container and can contain arbitrary commands like "kubectl patch"
     * if a kubeconfig is defined in the config section, it is used within tha container

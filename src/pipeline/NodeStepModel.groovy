@@ -8,6 +8,24 @@ class NodeStepModel extends AbstractStepModel {
 		this.dir=dir
 	}
 
+	int nodeVersionNumber=13
+
+	void nodeVersion(int nodeVersionNumber) {
+		this.nodeVersionNumber=nodeVersionNumber
+	}
+
+	@Override
+	List getExtraContainers(config) {
+		bodyClosure(config,[:])
+		return [[
+			name: "node"+nodeVersionNumber,
+			image: "library/node:"+nodeVersionNumber+"-slim",
+			command: 'cat',
+			ttyEnabled: true,
+			alwaysPullImage: true
+		]]
+	}
+
 	void doExecute(config,Map globals) {
 
 		def steps=globals.steps
@@ -30,7 +48,7 @@ class NodeStepModel extends AbstractStepModel {
 		}
 
 		steps.stage(stepName) {
-			steps.container("node13") {
+			steps.container("node"+nodeVersionNumber) {
 				body()
 			}
 		}

@@ -9,12 +9,12 @@ abstract class AbstractStepModel {
 	Closure beforeClosure
 	Closure afterClosure
 
-	AbstractStepModel(String stepName, Closure bodyClosure,Map vars) {
+	AbstractStepModel(String stepName, Closure bodyClosure, Map vars) {
 		this.stepName=stepName
 		this.bodyClosure=bodyClosure
 		this.vars=vars
-		bodyClosure.delegate=this
 		bodyClosure.resolveStrategy = Closure.DELEGATE_ONLY
+		bodyClosure.delegate=this
 	}
 
 	void before(Closure beforeClosure) {
@@ -24,6 +24,9 @@ abstract class AbstractStepModel {
 		this.afterClosure=afterClosure
 	}
 
+	List getExtraContainers(config) {
+		return []
+	}
 
 	String vars(String name) {
 		if (vars[name]) {
