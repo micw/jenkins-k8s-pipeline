@@ -10,13 +10,13 @@ class K8SStepModel extends AbstractStepModel {
 
 	@Override
 	List getExtraContainers(config) {
-		return [
+		return [[
 			name:"k8s",
 			image: 'dtzar/helm-kubectl:3.1.2',
 			command: 'cat',
 			ttyEnabled: true,
 			alwaysPullImage: true
-		]
+		]]
 	}
 
 	void doExecute(config,Map globals) {
