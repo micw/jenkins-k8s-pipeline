@@ -140,7 +140,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 To use the pipeline in a maven (or other) project, create a file Jenkinsfile.groovy in the root of your project's git repository. It has the following syntax:
 
 ```
-@Library("JenkinsPipeline@v1.0") _
+@Library("JenkinsPipeline@v1.1") _
 
 JenkinsPipeline {
     config {
@@ -264,6 +264,23 @@ Pipeline steps support shell commands within before-block. See example:
         * This can be set to a higher value if you have configured git commit hooks that triggers jenkins
 * Enable "Discard old items"
     * Optionally set "Days to keep old items" if you want to have old branches/tag jobs in "disabled" state for this amount of time before the jobs gets deleted
+
+## Using parameters
+
+Starting with v1.1, "env" is available in all steps. This can be used to parameterize builds. Here's an example that conditionally skips tests:
+
+```
+JenkinsPipeline {
+    config {
+        booleanParameter("skipTests","",true)
+    }
+    maven {
+        skipTests("${env.skipTests?:true}".toBoolean())
+    }
+}
+```
+
+Note that the parameter is created on the first run, so the value is not set on this run. For this cases "elvis operator" `?:` can be used to set "true" as default if `env.skipTests` is not defined.
 
 
 # Issues / workarounds
