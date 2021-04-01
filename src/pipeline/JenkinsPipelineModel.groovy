@@ -47,6 +47,8 @@ class JenkinsPipelineModel {
 			]
 		// launch additional containers required for the used steps
 		Set containerNames=[]
+		// set some initial vars to allow initial body block evaluation
+		vars['GIT_BRANCH_OR_TAG_NAME']=''
 		for (step in pipelineSteps) {
 			for (c in step.getExtraContainers(config)) {
 				if (containerNames.add(c.name)) {
