@@ -63,7 +63,7 @@ class MavenStepModel extends AbstractStepModel {
 		]]
 	}
 
-	void doExecute(config,Map globals) {
+	void doExecute(config) {
 
 		def steps=globals.steps
 
@@ -130,9 +130,9 @@ class MavenStepModel extends AbstractStepModel {
 					[ -z "\${DOCKER_CONFIG}" ] || ( rm -rf ~/.docker; ln -s \${DOCKER_CONFIG} ~/.docker )
 				""")
 
-				runBeforeScripts(config,globals)
+				runBeforeScripts(config)
 				steps.sh(mavenCommand)
-				runAfterScripts(config,globals)
+				runAfterScripts(config)
 			}
 		}
 

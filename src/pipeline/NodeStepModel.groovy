@@ -26,15 +26,15 @@ class NodeStepModel extends AbstractStepModel {
 		]]
 	}
 
-	void doExecute(config,Map globals) {
+	void doExecute(config) {
 
 		def steps=globals.steps
 
 
 		def body={
-			runBeforeScripts(config,globals)
+			runBeforeScripts(config)
             // TBD
-			runAfterScripts(config,globals)
+			runAfterScripts(config)
 		}
 
 		// change directory before build?

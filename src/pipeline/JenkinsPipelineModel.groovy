@@ -8,6 +8,11 @@ class JenkinsPipelineModel {
 	def pipelineSteps=[]
 	def vars=[:]
 	def stepContainers=[:]
+	Map globals
+
+	JenkinsPipelineModel(Map globals) {
+		this.globals=globals
+	}
 
 	def config(body) {
 		body.delegate=config
@@ -16,27 +21,26 @@ class JenkinsPipelineModel {
 	}
 
 	def maven(String stepName='Maven build', Closure body) {
-		def model=new MavenStepModel(stepName,body,vars);
+		def model=new MavenStepModel(stepName,body,globals,vars);
 		pipelineSteps.add(model)
 	}
 
 	def docker(String stepName='Docker build', Closure body) {
-		def model=new DockerStepModel(stepName,body,vars)
+		def model=new DockerStepModel(stepName,body,globals,vars)
 		pipelineSteps.add(model)
 	}
 
 	def node(String stepName='Node build', Closure body) {
-		def model=new NodeStepModel(stepName,body,vars)
+		def model=new NodeStepModel(stepName,body,globals,vars)
 		pipelineSteps.add(model)
 	}
 
 	def k8s(String stepName='K8S deployment', Closure body) {
-		def model=new K8SStepModel(stepName,body,vars)
+		def model=new K8SStepModel(stepName,body,globals,vars)
 		pipelineSteps.add(model)
 	}
 
-	public void execute(Map globals) {
-
+	public void execute() {
 		config.execute(globals)
 
 		def steps=globals.steps
@@ -98,7 +102,7 @@ class JenkinsPipelineModel {
 
 
 				for (step in pipelineSteps) {
-					step.execute(config,globals)
+					step.execute(config)
 					if (globals.stopBuildPipeline) {
 						break
 					}

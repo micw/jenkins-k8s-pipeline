@@ -23,13 +23,13 @@ class DockerStepModel extends AbstractStepModel {
 		this.dir=dir
 	}
 
-	void doExecute(config,Map globals) {
+	void doExecute(config) {
 
 		def steps=globals.steps
 
 
 		def body={
-			runBeforeScripts(config,globals)
+			runBeforeScripts(config)
 
 			// to allow variable setting inside before block check after runBefore
 			def imageName=this.imageName
@@ -46,7 +46,7 @@ class DockerStepModel extends AbstractStepModel {
 			steps.sh("docker build . -t ${imageName}:${tag}")
 			steps.echo("Pushing docker image '${imageName}' with tag '${tag}'")
 			steps.sh("docker push ${imageName}:${tag}")
-			runAfterScripts(config,globals)
+			runAfterScripts(config)
 		}
 
 		// change directory before build?

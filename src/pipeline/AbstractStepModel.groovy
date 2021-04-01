@@ -4,15 +4,19 @@ abstract class AbstractStepModel {
 
 	String stepName
 	Closure bodyClosure
+	Map globals
 	Map vars
+	def env
 
 	Closure beforeClosure
 	Closure afterClosure
 
-	AbstractStepModel(String stepName, Closure bodyClosure, Map vars) {
+	AbstractStepModel(String stepName, Closure bodyClosure, Map globals, Map vars) {
 		this.stepName=stepName
 		this.bodyClosure=bodyClosure
+		this.globals=globals
 		this.vars=vars
+		this.env=globals.env
 		bodyClosure.resolveStrategy = Closure.DELEGATE_ONLY
 		bodyClosure.delegate=this
 	}
@@ -35,21 +39,21 @@ abstract class AbstractStepModel {
 		throw new Exception("Model variable ${name} is not defined.")
 	}
 
-	void execute(config,Map globals) {
+	void execute(config) {
 		bodyClosure()
-		doExecute(config,globals)
+		doExecute(config)
 	}
 
-	abstract void doExecute(config,Map globals)
+	abstract void doExecute(config)
 
-	void runBeforeScripts(config,Map globals) {
+	void runBeforeScripts(config) {
 		if (beforeClosure) {
 			beforeClosure.delegate=globals.jenkins
 			beforeClosure.resolveStrategy=Closure.DELEGATE_FIRST
 			beforeClosure()
 		}
 	}
-	void runAfterScripts(config,Map globals) {
+	void runAfterScripts(config) {
 		if (afterClosure) {
 			afterClosure.delegate=globals.jenkins
 			afterClosure.resolveStrategy=Closure.DELEGATE_FIRST
