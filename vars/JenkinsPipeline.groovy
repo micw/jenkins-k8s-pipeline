@@ -21,10 +21,8 @@ def call(body) {
 		model.execute()
 	} catch (e) {
 		node {
-			sh "echo error 1"
 			model.notifyBuildFailure(e)
 			throw(e)
-			sh "echo error 2"
 		}
 	}
 }
