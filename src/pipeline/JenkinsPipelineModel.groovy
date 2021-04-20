@@ -40,6 +40,17 @@ class JenkinsPipelineModel {
 		pipelineSteps.add(model)
 	}
 
+	public void notifyBuildFailure(error) {
+		if (config.rocketChatChannel) {
+			globals.steps.rocketSend channel: config.rocketChatChannel, message: ":exclamation: :crying_cat_face: Build failed: "+error
+		}
+	}
+	public void notifyBuildOk() {
+		if (config.rocketChatChannel) {
+			globals.steps.rocketSend channel: config.rocketChatChannel, message: ":white_check_mark: :cat: Build OK"
+		}
+	}
+
 	public void execute() {
 		config.execute(globals)
 
@@ -107,6 +118,7 @@ class JenkinsPipelineModel {
 						break
 					}
 				}
+				notifyBuildOk()
 			}
 		}
 	}

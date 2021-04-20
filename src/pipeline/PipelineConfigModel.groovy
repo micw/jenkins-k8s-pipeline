@@ -23,6 +23,12 @@ class PipelineConfigModel {
 		mavenSettingsId=settingsId
 	}
 
+	String rocketChatChannel
+
+	def notifyRocketChat(channel) {
+		rocketChatChannel=channel
+	}
+
 	def booleanParameter(String name,String description='',boolean defaultValue=false) {
 		jobParameters.add([
 			$class: 'BooleanParameterDefinition',

@@ -36,6 +36,9 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
   * evermind/jenkins-maven:3-jdk-11-slim (if javaVersion is set to 11)
   * library/node:XX-slim where XX depends on "nodeVersion" and defaults to 13
 
+* Build notifications via RocketChat
+
+
 # Usage
 
 ## Jenkins setup
@@ -147,6 +150,7 @@ JenkinsPipeline {
         mavenSettings("my-maven-settings")
         dockerRegistry("registry.mydomain.com","my-docker-credentials")
         kubeconfig("my-kubeconfig")
+        notifyRocketChat("#my-dev-channel")
     }
     maven {
         dir("backend")
@@ -201,6 +205,7 @@ JenkinsPipeline {
     * dockerRegistry() tells docker to use this registry URL (optionally with a credentials ID)
         * if set, all steps will be run with this docker registry configured (e.g. maven tasks that pull docker images will use it)
     * kubeconfig() references the ID of the kubeconfig described above
+    * notifyRocketChat() enables rocket chat build notifications. It takes a channel as parameter. The RocketChat Notifier Plug-In must be installed and configured!
 * If a maven section is present, a maven build will be done
     * if deploy is set to false (default) "mvn verify" is executed. If set to true, "mvn deploy" is executed
     * if skipTests is set to true, maven tests are skipped

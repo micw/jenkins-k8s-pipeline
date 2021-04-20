@@ -15,7 +15,16 @@ def call(body) {
 	model=new pipeline.JenkinsPipelineModel(globals)
 	body.delegate=model
 	body.resolveStrategy = Closure.DELEGATE_ONLY
-	body()
 
-	model.execute()
+	try {
+		body()
+		model.execute()
+	} catch (e) {
+		node {
+			sh "echo error 1"
+			model.notifyBuildFailure(e)
+			throw(e)
+			sh "echo error 2"
+		}
+	}
 }
