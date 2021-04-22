@@ -42,12 +42,29 @@ class JenkinsPipelineModel {
 
 	public void notifyBuildFailure(error) {
 		if (config.rocketChatChannel) {
-			globals.steps.rocketSend channel: config.rocketChatChannel, message: ":exclamation: :crying_cat_face: Build failed: "+error
+			def message=":exclamation: :crying_cat_face: Build failed: "+error+" - ${globals.env.JOB_NAME} (<${globals.env.BUILD_URL}|#${globals.env.BUILD_NUMBER}>)"
+			globals.steps.rocketSend channel: config.rocketChatChannel, rawMessage: true, message: message
 		}
 	}
 	public void notifyBuildOk() {
 		if (config.rocketChatChannel) {
-			globals.steps.rocketSend channel: config.rocketChatChannel, message: ":white_check_mark: :cat: Build OK"
+
+			def message=":white_check_mark: :cat: Build OK - ${globals.env.JOB_NAME} (<${globals.env.BUILD_URL}|#${globals.env.BUILD_NUMBER}>)"
+			// https://support.cloudbees.com/hc/en-us/articles/217630098-How-to-access-Changelogs-in-a-Pipeline-Job-
+			def firstChange=true
+			def changeLogSets = globals.currentBuild.changeSets
+			for (int i = 0; i < changeLogSets.size(); i++) {
+				def entries = changeLogSets[i].items
+				for (int j = 0; j < entries.length; j++) {
+					def entry = entries[j]
+					if (firstChange) {
+						firstChange=false
+						message+="\nChangelog:"
+					}
+					message+="\n  ${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}: ${entry.msg}"
+				}
+			}
+			globals.steps.rocketSend channel: config.rocketChatChannel, rawMessage: true, message: message
 		}
 	}
 
