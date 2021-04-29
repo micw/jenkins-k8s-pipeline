@@ -143,7 +143,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 To use the pipeline in a maven (or other) project, create a file Jenkinsfile.groovy in the root of your project's git repository. It has the following syntax:
 
 ```
-@Library("JenkinsPipeline@v1.1") _
+@Library("JenkinsPipeline@v1.2") _
 
 JenkinsPipeline {
     config {
@@ -238,7 +238,7 @@ JenkinsPipeline {
     * if a kubeconfig is defined in the config section, it is used within tha container
 * Each step can be repeated multiple times. It is possible to set the name for each step, e.g. `docker "my-step-name", { ...` - see above for an example.
 
-## Customize docker container
+## Run arbitrary commands in docker containers
 
 Pipeline steps support shell commands within before-block. See example:
 
@@ -250,6 +250,54 @@ Pipeline steps support shell commands within before-block. See example:
           '''
         }
 ```
+
+## Run additional docker containers
+
+Starting with version v1.2, it's possible to launch additional containers and optionally run commands in it. This can be used to launch sidecar containers like databases.
+
+The custom step container has the following parameters:
+* container: The name container to run on. Additional arguments are:
+    * image: image to launch. If ommitted, an a container with the given name must already exist.
+    * tmpfs: Optional path where to mount a tempfs filesystem (usefull for faster startup of databases)
+    * env: a map of additional env variables passed to the container
+    * alwaysPullImage (default false): if true, the image will always be pulled, otherwise only if not present
+* run: an optional code block to run
+
+
+### Example to run mysql as additional container
+
+```groovy
+JenkinsPipeline {
+    custom "Start and wait for MySQL", {
+        container("mysql",image:"mariadb:10.5",tmpfs:"/var/lib/mysql",env:[MYSQL_ALLOW_EMPTY_PASSWORD:"1",MYSQL_DATABASE:"local_test"])
+        run {
+            sh('''
+                # wait until MySQL is really available
+                maxcounter=45
+                 
+                counter=1
+                while ! mysql --protocol TCP -uroot -e "show databases;" > /dev/null 2>&1; do
+                    sleep 1
+                    counter=`expr $counter + 1`
+                    if [ $counter -gt $maxcounter ]; then
+                        >&2 echo "We have been waiting for MySQL too long already; failing."
+                        exit 1
+                    fi;
+                done
+            ''')
+        }
+    }
+    custom "Additional MySQL Step", {
+        container("mysql")
+        run {
+            sh 'mysql --protocol TCP -uroot -e "show databases;"'
+        }
+    }
+}
+```
+
+This example launches a mariadb container and waits for the database to start. In a second step, the same container is re-used to run a command on the database.
+
 
 ## Set up the multibranch pipeline job on jenkins
 
