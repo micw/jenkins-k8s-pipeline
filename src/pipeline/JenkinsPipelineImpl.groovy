@@ -2,7 +2,7 @@ package pipeline
 
 import groovy.inspect.swingui.AstNodeToScriptVisitor
 
-class JenkinsPipelineModel {
+class JenkinsPipelineImpl {
 
 	def config=new PipelineConfigModel()
 	def pipelineSteps=[]
@@ -10,7 +10,7 @@ class JenkinsPipelineModel {
 	def stepContainers=[:]
 	Map globals
 
-	JenkinsPipelineModel(Map globals) {
+	JenkinsPipelineImpl(Map globals) {
 		this.globals=globals
 	}
 
@@ -37,6 +37,11 @@ class JenkinsPipelineModel {
 
 	def k8s(String stepName='K8S deployment', Closure body) {
 		def model=new K8SStepModel(stepName,body,globals,vars)
+		pipelineSteps.add(model)
+	}
+
+	def custom(String stepName='Custom step', Closure body) {
+		def model=new CustomStepModel(stepName,body,globals,vars)
 		pipelineSteps.add(model)
 	}
 
@@ -75,8 +80,13 @@ class JenkinsPipelineModel {
 
 		def containers=[
 				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:3.29-1-alpine',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
-				steps.containerTemplate(name: 'docker', image: 'docker:18.09-dind', privileged: true, alwaysPullImage: true, args: '--mtu 1350')
+				steps.containerTemplate(name: 'docker', image: 'docker:18.09-dind', privileged: true, alwaysPullImage: false, args: '--mtu 1350')
 			]
+
+		def volumes=[
+			steps.emptyDirVolume(mountPath: '/home/jenkins', memory: false)
+		]
+
 		// launch additional containers required for the used steps
 		Set containerNames=[]
 		// set some initial vars to allow initial body block evaluation
@@ -84,6 +94,11 @@ class JenkinsPipelineModel {
 		for (step in pipelineSteps) {
 			for (c in step.getExtraContainers(config)) {
 				if (containerNames.add(c.name)) {
+					if (c.tmpfs!=null) {
+						steps.emptyDirVolume(mountPath: c.tmpfs, memory: true)
+					}
+					c.remove("tmpfs")
+
 					containers.add(steps.containerTemplate(c))
 				}
 			}
@@ -92,9 +107,7 @@ class JenkinsPipelineModel {
 		def buildSlaveLabel="${UUID.randomUUID().toString()}"
 		steps.podTemplate(
 			label: buildSlaveLabel,
-			volumes: [
-				steps.emptyDirVolume(mountPath: '/home/jenkins', memory: false)
-			],
+			volumes: volumes,
 			containers: containers) {	
 			steps.node(buildSlaveLabel) {
 				GitInfo gitInfo=new GitInfo()
