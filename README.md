@@ -143,7 +143,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 To use the pipeline in a maven (or other) project, create a file Jenkinsfile.groovy in the root of your project's git repository. It has the following syntax:
 
 ```
-@Library("JenkinsPipeline@v1.2") _
+@Library("JenkinsPipeline@v1.3") _
 
 JenkinsPipeline {
     config {
@@ -156,6 +156,7 @@ JenkinsPipeline {
         dir("backend")
         javaVersion(8)
         before {}
+        beforeRelease {}
         deploy(true)
         skipTests(false)
         enableReleases("master","other-branch")
@@ -221,6 +222,7 @@ JenkinsPipeline {
     * if appendBranchToVersion is set to true, the branch name will be added to maven before deploying to nexus. This allows to have snapshot of branch builds. Optionally a list of branches that will not be added to the version can be specified (default is to append all branches except "master")
     * locale setting for java processing is 'user.language=de, user.region=DE' by default
     * javaVersion() sets the java version to use for this maven build. Currently 8 and 11 are supported. Default is 8
+    * beforeRelease can contain jenkins pipeline code that is executed before a maven release is performed
 * If a docker section is present, a docker build+push will be performed
     * imageName must be set
     * tag may be set. If not set, the current git branch or tag will be used.
@@ -410,6 +412,29 @@ If the git URL is the same as the git URL that jenkins uses for git checkout, je
 ```
 
 As a workaround, the command `mkdir -p ~/.ssh && ssh-keyscan -p PORT MY.GIT.SERVER >> ~/.ssh/known_hosts` can be executed. It will add a trust to the ssh host key and pushing with maven works.
+
+Starting with version 1.3, the maven job configuration `beforeRelase` can be used to execute this command. Example:
+
+```
+JenkinsPipeline {
+    [...]
+    maven {
+        [...]
+        beforeRelease {
+            sh """
+              mkdir -p ~/.ssh
+              ssh-keyscan -p 2007 git.evermind.de >> ~/.ssh/known_hosts
+            """
+        }
+
+        [...]
+    }
+}
+```
+
+A better solution is to use the same git URL for jenkins and for maven. Either switch jenkins to use git over SSH. If that's not possible, set the scm connection in `pom.xml`to https. Also add a property `project.scm.id` to the pom to specify a secret id that contains the git credentials (e.g. `githttps`).
+
+Now edit your maven settings file (Jenkins -> Configuration -> Managed files) and add a secret with the id above that contains the https gredentials for your git.
 
 
 ## Pipeline jobs are not triggered by upstream maven SNAPSHOT builds
