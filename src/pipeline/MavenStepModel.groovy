@@ -51,6 +51,19 @@ class MavenStepModel extends AbstractStepModel {
 		}
 	}
 
+	Closure beforeReleaseClosure
+	void beforeRelease(Closure beforeReleaseClosure) {
+		this.beforeReleaseClosure=beforeReleaseClosure
+	}
+
+	void runBeforeReleaseScripts(config) {
+		if (beforeReleaseClosure) {
+			beforeReleaseClosure.delegate=globals.jenkins
+			beforeReleaseClosure.resolveStrategy=Closure.DELEGATE_FIRST
+			beforeReleaseClosure()
+		}
+	}
+
 	@Override
 	List getExtraContainers(config) {
 		bodyClosure(config,[:])
@@ -102,6 +115,7 @@ class MavenStepModel extends AbstractStepModel {
 
 				globals.currentBuild.description="Prepare release of ${releaseVersion}"
 
+				runBeforeReleaseScripts(config)
 				steps.sh(mavenCommand)
 				globals.currentBuild.result = 'NOT_BUILT'
 				globals.stopBuildPipeline=true // stop after this step
