@@ -388,6 +388,30 @@ There's an issue in Jenkins (https://issues.jenkins-ci.org/browse/JENKINS-43563)
 
 The pipeline implements the workaround to set git user.name and user.email via shell. To make this work, you need to define the name and email in Jenkins settings (see [GIT settings](#git-settings) above).
 
+## Maven releases fails with "Host key verification failed"
+
+Maven uses the git URL defined in `pom.xml` to push release tags. If this URL is a SSH git URL, the host key of the SSH git server must be trusted. This is not the case by default because each build is running in a fresh contanier with empty `~/.ssh/known_hosts` file.
+
+If the git URL is the same as the git URL that jenkins uses for git checkout, jenkins creates an entry in `~/.ssh/known_hosts` and maven releases just works. If that's not the case (e.g. if jenkins uses a HTTPS git URL and maven uses SSH), the build might fail with the following error:
+
+```
+[ERROR] Provider message:
+[ERROR] The git-push command failed.
+[ERROR] Command output:
+[ERROR] Host key verification failed.
+[ERROR] fatal: Could not read from remote repository.
+[ERROR] 
+[ERROR] Please make sure you have the correct access rights
+[ERROR] and the repository exists.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+```
+
+As a workaround, the command `mkdir -p ~/.ssh && ssh-keyscan -p PORT MY.GIT.SERVER >> ~/.ssh/known_hosts` can be executed. It will add a trust to the ssh host key and pushing with maven works.
+
+
 ## Pipeline jobs are not triggered by upstream maven SNAPSHOT builds
 
 See https://plugins.jenkins.io/pipeline-maven/#PipelineMavenPlugin-Mydownstreampipelinesdon'tgettriggeredevenifIuse%22BuildwheneveraSNAPSHOTdependencyisbuilt%22
