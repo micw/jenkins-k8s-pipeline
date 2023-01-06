@@ -2,6 +2,7 @@
 
 This is an implementation of a Jenkins build pipeline which uses the Jenkins Kubernetes Plug-In to create dynamic build slaves.
 
+> :warning: Always use a tagged version for your produktive CI builds. Master branch may receive breaking changes at any time!
 
 ## Features
 
@@ -143,7 +144,7 @@ This is an implementation of a Jenkins build pipeline which uses the Jenkins Kub
 To use the pipeline in a maven (or other) project, create a file Jenkinsfile.groovy in the root of your project's git repository. It has the following syntax:
 
 ```
-@Library("JenkinsPipeline@v1.3") _
+@Library("JenkinsPipeline@v1.5") _
 
 JenkinsPipeline {
     config {
