@@ -121,7 +121,7 @@ class MavenStepModel extends AbstractStepModel {
 
 				def mavenCommand="""
 					export _JAVA_OPTIONS="-Djdk.net.URLClassPath.disableClassPathURLCheck=true"
-					mvn -X -B -DargLine='${javaOpts}' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
+					mvn -B -DargLine='${javaOpts}' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
 				"""
 
 				def mavenVersion

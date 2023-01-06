@@ -28,7 +28,6 @@ class JenkinsPipelineImpl {
 	def docker(String stepName='Docker build', Closure body) {
 		def model=new DockerStepModel(stepName,body,globals,vars)
 		pipelineSteps.add(model)
-		hasDocker=true
 	}
 
 	def node(String stepName='Node build', Closure body) {
@@ -117,7 +116,16 @@ class JenkinsPipelineImpl {
 					def scmvars=steps.checkout([
 						$class: 'GitSCM',
 						branches: globals.scm.branches,
-						extensions: globals.scm.extensions + [[$class: 'LocalBranch'], [$class: 'CleanCheckout']],
+						extensions: globals.scm.extensions + [
+							[$class: 'LocalBranch'],
+							[$class: 'CleanCheckout'],
+							[$class: 'SubmoduleOption',
+								disableSubmodules: false,
+								parentCredentials: true,
+								recursiveSubmodules: true,
+								shallow: true
+							]
+							],
 						userRemoteConfigs: globals.scm.userRemoteConfigs
 					])
 					if (globals.scm.userRemoteConfigs.size()>0 && globals.scm.userRemoteConfigs[0].credentialsId) {
