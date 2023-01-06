@@ -28,6 +28,7 @@ class JenkinsPipelineImpl {
 	def docker(String stepName='Docker build', Closure body) {
 		def model=new DockerStepModel(stepName,body,globals,vars)
 		pipelineSteps.add(model)
+		hasDocker=true
 	}
 
 	def node(String stepName='Node build', Closure body) {
@@ -80,11 +81,12 @@ class JenkinsPipelineImpl {
 
 		def containers=[
 				steps.containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:4.13.2-1-jdk11',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
-				steps.containerTemplate(name: 'docker', image: 'docker:20.10-dind', privileged: true, alwaysPullImage: false, args: '--mtu 1350 -H unix:///var/run/docker.sock -H tcp://0.0.0.0 --tls=false')
+				steps.containerTemplate(name: 'docker', image: 'docker:20.10-dind', privileged: true, alwaysPullImage: false, args: '--mtu 1350 -H unix:///var/run/docker.sock')
 			]
 
 		def volumes=[
-			steps.emptyDirVolume(mountPath: '/home/jenkins', memory: false)
+			steps.emptyDirVolume(mountPath: '/home/jenkins', memory: false),
+			steps.emptyDirVolume(mountPath: '/var/run', memory: true)
 		]
 
 		// launch additional containers required for the used steps
@@ -141,6 +143,20 @@ class JenkinsPipelineImpl {
 				globals['gitInfo']=gitInfo
 				vars['GIT_BRANCH_OR_TAG_NAME']=gitInfo.name
 
+				// wait for docker and make the socket accessible
+				steps.container("docker") {
+					steps.echo("Waiting for docker daemon to start")
+					steps.sh('''
+						set +x
+						for i in 0 1 2 3 5 7 10; do
+							sleep $i
+							if [ -e /var/run/docker.sock ]; then
+							  chmod 0666 /var/run/docker.sock
+							  break
+							fi
+						done
+					''')
+				}
 
 				for (step in pipelineSteps) {
 					step.execute(config)

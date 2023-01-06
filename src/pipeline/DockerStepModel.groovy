@@ -42,14 +42,6 @@ class DockerStepModel extends AbstractStepModel {
 				steps.echo("Docker tag is not set. Using '${tag}' derived from git tag or branch")
 			}
 
-			steps.echo("Waiting for docker daemon to start")
-			steps.sh("""
-			  for i in 1 2 5 10; do
-			    docker info >/dev/null 2>&1 && break || true
-				sleep \$i
-			  done
-			""")
-
 			steps.echo("Building docker image '${imageName}'")
 			steps.sh("docker build . -t ${imageName}:${tag}")
 			steps.echo("Pushing docker image '${imageName}' with tag '${tag}'")

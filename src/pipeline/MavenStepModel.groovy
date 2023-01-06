@@ -105,9 +105,6 @@ class MavenStepModel extends AbstractStepModel {
 
 				def goal="release:prepare -Darguments=-Dmaven.test.skip=${skipTests} -DpreparationGoals='verify' -DtagNameFormat='${releaseTag}' -DreleaseVersion=${releaseVersion}"
 
-		/*
-		export _JAVA_OPTIONS="-Djdk.net.URLClassPath.disableClassPathURLCheck=true -Duser.language=de -Duser.region=DE -Dfile.encoding=UTF8"
-		*/
 				def mavenCommand="""
 					export _JAVA_OPTIONS="-Djdk.net.URLClassPath.disableClassPathURLCheck=true"
 					mvn -B -DargLine='${javaOpts}' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
@@ -124,7 +121,7 @@ class MavenStepModel extends AbstractStepModel {
 
 				def mavenCommand="""
 					export _JAVA_OPTIONS="-Djdk.net.URLClassPath.disableClassPathURLCheck=true"
-					mvn -B -DargLine='${javaOpts}' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
+					mvn -X -B -DargLine='${javaOpts}' -Dmaven.test.failure.ignore=false -Dmaven.test.skip=${skipTests} ${extraOpts} ${goal}
 				"""
 
 				def mavenVersion
@@ -191,9 +188,7 @@ class MavenStepModel extends AbstractStepModel {
 		}
 		steps.stage(stepName) {
 			steps.container("maven-java"+javaVersionNumber) {
-				steps.withEnv(['DOCKER_HOST=tcp://127.0.0.1:2375']) {
-					body()
-				}
+				body()
 			}
 		}
 	}
