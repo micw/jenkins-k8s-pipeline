@@ -32,6 +32,10 @@ abstract class AbstractStepModel {
 		return []
 	}
 
+	List getExtraVolumes(config) {
+		return []
+	}
+
 	String vars(String name) {
 		if (vars[name]) {
 			return vars[name]

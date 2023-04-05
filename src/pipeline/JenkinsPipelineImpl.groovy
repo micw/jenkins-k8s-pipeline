@@ -103,6 +103,9 @@ class JenkinsPipelineImpl {
 					containers.add(steps.containerTemplate(c))
 				}
 			}
+			for (v in step.getExtraVolumes(config)) {
+				volumes.add(v);
+			}
 		}
 
 		def buildSlaveLabel="${UUID.randomUUID().toString()}"

@@ -10,18 +10,22 @@ class CustomStepModel extends AbstractStepModel {
 
 	String containerName = null
 	List extraContainers = []
+	List extraVolumes = []
 
 	void container(Map extraArgs=[:],String name) {
 		// https://stackoverflow.com/questions/18149102/groovy-method-with-optional-parameters
 		containerName=name
 
 		if (extraArgs["image"]!=null) {
+			if (extraArgs["tmpfs"]!=null) {
+				extraVolumes.add(globals.steps.emptyDirVolume(mountPath: extraArgs["tmpfs"], memory: true));
+			}
+
 			def extraContainer=[
 				name: name,
 				image: extraArgs["image"],
 				ttyEnabled: true,
-				alwaysPullImage: extraArgs["alwaysPullImage"]?:false,
-				tmpfs: extraArgs["tmpfs"]
+				alwaysPullImage: extraArgs["alwaysPullImage"]?:false
 				]
 			if (extraArgs["command"]!=null) {
 				extraContainer["command"]=extraArgs["command"]
@@ -42,6 +46,10 @@ class CustomStepModel extends AbstractStepModel {
 	List getExtraContainers(config) {
 		bodyClosure(config,[:])
 		return extraContainers
+	}
+	@Override
+	List getExtraVolumes(config) { // must be called after getExtraContainers()
+		return extraVolumes
 	}
 
 	Closure runClosure
