@@ -30,6 +30,9 @@ class CustomStepModel extends AbstractStepModel {
 			if (extraArgs["command"]!=null) {
 				extraContainer["command"]=extraArgs["command"]
 			}
+			if (extraArgs["args"]!=null) {
+				extraContainer["args"]=extraArgs["args"]
+			}
 			if (extraArgs["env"]!=null) {
 				extraContainer["envVars"]=[]
 				for (e in extraArgs["env"]) {

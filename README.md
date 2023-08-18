@@ -263,6 +263,8 @@ The custom step container has the following parameters:
     * image: image to launch. If ommitted, an a container with the given name must already exist.
     * tmpfs: Optional path where to mount a tempfs filesystem (usefull for faster startup of databases)
     * env: a map of additional env variables passed to the container
+    * command: Optional, override the image entrypoint with a different one
+    * args: Optional, arguments to pass to the command
     * alwaysPullImage (default false): if true, the image will always be pulled, otherwise only if not present
 * run: an optional code block to run
 
