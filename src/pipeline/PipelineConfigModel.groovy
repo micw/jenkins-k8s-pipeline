@@ -2,12 +2,17 @@ package pipeline
 
 class PipelineConfigModel {
 
+	List<String> imagePullSecrets=[]
 	String dockerRegistry
 	String dockerRegistryCredentialsId
 	boolean executed=false
 	Map globals
 	List jobParameters=[]
 	String kubeconfigCredentialsId
+
+	def imagePullSecrets(String... secrets) {
+		imagePullSecrets=secrets
+	}
 
 	def dockerRegistry(registry,credentialsId=null) {
 		dockerRegistry=registry

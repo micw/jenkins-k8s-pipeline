@@ -148,6 +148,7 @@ To use the pipeline in a maven (or other) project, create a file Jenkinsfile.gro
 
 JenkinsPipeline {
     config {
+        imagePullSecrets("secret1","secret2")
         mavenSettings("my-maven-settings")
         dockerRegistry("registry.mydomain.com","my-docker-credentials")
         kubeconfig("my-kubeconfig")
@@ -203,6 +204,7 @@ JenkinsPipeline {
 * SCM checkout is always done implicitly
     * This step adds GIT_BRANCH_OR_TAG_NAME to the "vars" which can be referenced by other sections
 * The config section configures some basics:
+    * imagePullSecrets() a list of imagePullSecrets used to pull the pod container images. The secrets must exist in the namespace where the pod is started
     * mavenSettings() references the ID of the Maven settings.xml described above
     * dockerRegistry() tells docker to use this registry URL (optionally with a credentials ID)
         * if set, all steps will be run with this docker registry configured (e.g. maven tasks that pull docker images will use it)

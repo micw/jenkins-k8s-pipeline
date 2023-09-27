@@ -111,6 +111,7 @@ class JenkinsPipelineImpl {
 		def buildSlaveLabel="${UUID.randomUUID().toString()}"
 		steps.podTemplate(
 			label: buildSlaveLabel,
+			imagePullSecrets: config.imagePullSecrets,
 			volumes: volumes,
 			containers: containers) {	
 			steps.node(buildSlaveLabel) {
