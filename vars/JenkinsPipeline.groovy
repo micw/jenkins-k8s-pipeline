@@ -12,7 +12,7 @@ def call(body) {
 		stopBuildPipeline: false
 		]
 
-	model=new pipeline.JenkinsPipelineImpl(globals)
+	def model=new pipeline.JenkinsPipelineImpl(globals)
 	body.delegate=model
 	body.resolveStrategy = Closure.DELEGATE_ONLY
 

@@ -79,7 +79,7 @@ class JenkinsPipelineImpl {
 		def steps=globals.steps
 
 		def containers=[
-				steps.containerTemplate(name: 'jnlp', image: 'jenkins/inbound-agent:4.13.3-1-alpine-jdk11',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
+				steps.containerTemplate(name: 'jnlp', image: 'jenkins/inbound-agent:3309.v27b_9314fd1a_4-4-alpine-jdk21',  args: '${computer.jnlpmac} ${computer.name}', alwaysPullImage: true),
 				steps.containerTemplate(name: 'docker', image: 'docker:20.10-dind', privileged: true, alwaysPullImage: false, args: '--mtu 1350 -H unix:///var/run/docker.sock')
 			]
 
